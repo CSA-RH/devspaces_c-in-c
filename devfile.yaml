@@ -1,10 +1,11 @@
 schemaVersion: 2.2.0
 metadata:
-  name: nested-podman-workspace
+  name: nested-systemd
 components:
   - name: dev-machine
     container:
-      image: registry.access.redhat.com/ubi9/ubi-init:latest      
+      image: registry.access.redhat.com/ubi9/ubi-init:latest
+      command: ['/sbin/init']
       env:
         - name: KUBEDOCK_ENABLED
           value: "false"
