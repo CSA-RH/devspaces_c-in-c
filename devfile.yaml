@@ -1,0 +1,26 @@
+schemaVersion: 2.2.0
+metadata:
+  name: nested-podman-workspace
+components:
+  - name: dev-machine
+    container:
+      image: registry.access.redhat.com/ubi9/ubi-init:latest      
+      env:
+        - name: KUBEDOCK_ENABLED
+          value: "false"
+      attributes:
+        container-overrides:
+          securityContext:
+            privileged: true
+        pod-overrides:
+          spec:
+            containers:
+              - name: dev-machine
+                volumeMounts:
+                  - name: cgroups
+                    mountPath: /sys/fs/cgroup
+            volumes:
+              - name: cgroups
+                hostPath:
+                  path: /sys/fs/cgroup
+                  type: Directory
