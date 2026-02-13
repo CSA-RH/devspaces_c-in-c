@@ -12,21 +12,21 @@ components:
       volumeMounts:
         - name: cgroups-host
           path: /sys/fs/cgroup
-    # This is the "Native" way to inject security settings
     attributes:
       container-overrides:
         securityContext:
           privileged: true
-          runAsUser: 0
+          runAsUser: 0      # Only THIS container runs as root
           runAsNonRoot: false
   
   - name: cgroups-host
     volume: {}
 
 attributes:
-  # We ONLY override the volumes, NOT the containers
   pod-overrides:
     spec:
+      # We removed the 'containers' override from here to stop 
+      # affecting the init-containers like project-clone.
       volumes:
         - name: cgroups-host
           hostPath:
