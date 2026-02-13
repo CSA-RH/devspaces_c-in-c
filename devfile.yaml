@@ -9,32 +9,24 @@ components:
       env:
         - name: KUBEDOCK_ENABLED
           value: "false"
-      # Standard way to mount volumes in a devfile
+      # We define the mount point here
       volumeMounts:
-        - name: cgroups-vol
+        - name: cgroups-host
           path: /sys/fs/cgroup
-    attributes:
-      container-overrides:
-        securityContext:
-          privileged: true
-          runAsUser: 0
-          runAsNonRoot: false
-  
-  # Define the hostPath volume as its own component
-  - name: cgroups-vol
-    attributes:
-      controller.devfile.io/container-contribution: true
-    volume:
-      # This tells the operator to use the host's cgroup directory
-      # Note: Some Devfile versions require this to be a 'hostPath' in attributes
-      # but in Dev Spaces, we can often override this via the pod-overrides at the TOP level.
-    
-# Use global pod-overrides to define the volume source
+  - name: cgroups-host
+    volume: {} # This satisfies the schema requirement for a volume component
 attributes:
+  # Global overrides that apply to the entire Pod/Deployment
   pod-overrides:
     spec:
+      containers:
+        - name: universal-developer-image
+          securityContext:
+            privileged: true
+            runAsUser: 0
+            runAsNonRoot: false
       volumes:
-        - name: cgroups-vol
+        - name: cgroups-host
           hostPath:
             path: /sys/fs/cgroup
             type: Directory
