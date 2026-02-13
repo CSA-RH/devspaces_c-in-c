@@ -18,7 +18,7 @@ components:
           privileged: true
           runAsUser: 0
           runAsNonRoot: false
-          # SPC_T allows systemd to talk to the kernel cgroups
+          # This label is the magic key for systemd/cgroups on OpenShift
           seLinuxOptions:
             type: spc_t 
   - name: cgroups-host
@@ -26,8 +26,8 @@ components:
 attributes:
   pod-overrides:
     spec:
-      # DO NOT put runAsUser: 0 here. 
-      # Leaving this empty allows sidecars to run as their default non-root users.
+      # We let the Pod-level remain flexible so init-containers 
+      # can use their own defaults, but we keep the hostPath volume.
       volumes:
         - name: cgroups-host
           hostPath:
