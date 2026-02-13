@@ -1,12 +1,11 @@
 schemaVersion: 2.2.0
 metadata:
-  name: systemd-beachhead
-projects: [] # DISABLE the crashing project-clone helper
+  name: systemd-rootless
 components:
   - name: universal-developer-image
     container:
       image: registry.redhat.io/devspaces/udi-rhel9:latest
-      # Use a dummy command to bypass systemd boot issues for now
+      # We DON'T use /sbin/init yet. We use a sleep to get the pod UP.
       command: ['tail', '-f', '/dev/null']
       env:
         - name: KUBEDOCK_ENABLED
@@ -17,11 +16,10 @@ components:
     attributes:
       container-overrides:
         securityContext:
+          # We keep privileged to allow the cgroup mount, 
+          # but we STOP asking for UID 0.
           privileged: true
-          runAsUser: 0
-          runAsNonRoot: false
-          seLinuxOptions:
-            type: spc_t 
+          allowPrivilegeEscalation: true
   - name: cgroups-host
     volume: {}
 attributes:
