@@ -2,29 +2,29 @@ schemaVersion: 2.2.0
 metadata:
   name: systemd-nested
 components:
-  - name: universal-developer-image  # <--- THIS NAME MUST BE EXACT
+  - name: universal-developer-image
     container:
       image: registry.redhat.io/devspaces/udi-rhel9:latest
-      # We must override the command to start systemd
       command: ['/sbin/init']
       env:
         - name: KUBEDOCK_ENABLED
           value: "false"
-      attributes:
-        container-overrides:
-          securityContext:
-            privileged: true
-            runAsUser: 0      # Systemd needs to start as root (PID 1)
-            runAsNonRoot: false
-        pod-overrides:
-          spec:
-            containers:
-              - name: universal-developer-image # <--- MATCH THIS NAME TOO
-                volumeMounts:
-                  - name: cgroups
-                    mountPath: /sys/fs/cgroup
-            volumes:
-              - name: cgroups
-                hostPath:
-                  path: /sys/fs/cgroup
-                  type: Directory
+    
+    attributes:
+      container-overrides:
+        securityContext:
+          privileged: true
+          runAsUser: 0
+          runAsNonRoot: false
+      pod-overrides:
+        spec:
+          containers:
+            - name: universal-developer-image
+              volumeMounts:
+                - name: cgroups
+                  mountPath: /sys/fs/cgroup
+          volumes:
+            - name: cgroups
+              hostPath:
+                path: /sys/fs/cgroup
+                type: Directory
