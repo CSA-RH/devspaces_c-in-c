@@ -1,35 +1,16 @@
 schemaVersion: 2.2.0
 metadata:
-  name: systemd-nested
+  name: diagnostic-systemd
 components:
   - name: universal-developer-image
     container:
       image: registry.redhat.io/devspaces/udi-rhel9:latest
-      command: ['/sbin/init']
-      env:
-        - name: KUBEDOCK_ENABLED
-          value: 'false'
-      volumeMounts:
-        - name: cgroups-host
-          path: /sys/fs/cgroup
+      # We use 'tail' instead of 'init' just to get the pod to STAY ALIVE 
+      # so we can inspect it manually.
+      command: ['tail', '-f', '/dev/null']
     attributes:
       container-overrides:
         securityContext:
           privileged: true
           runAsUser: 0
           runAsNonRoot: false
-          # This label is the magic key for systemd/cgroups on OpenShift
-          seLinuxOptions:
-            type: spc_t 
-  - name: cgroups-host
-    volume: {}
-attributes:
-  pod-overrides:
-    spec:
-      # We let the Pod-level remain flexible so init-containers 
-      # can use their own defaults, but we keep the hostPath volume.
-      volumes:
-        - name: cgroups-host
-          hostPath:
-            path: /sys/fs/cgroup
-            type: Directory
