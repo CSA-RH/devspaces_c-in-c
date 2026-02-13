@@ -1,16 +1,34 @@
 schemaVersion: 2.2.0
 metadata:
-  name: diagnostic-systemd
+  name: systemd-beachhead
+projects: [] # DISABLE the crashing project-clone helper
 components:
   - name: universal-developer-image
     container:
       image: registry.redhat.io/devspaces/udi-rhel9:latest
-      # We use 'tail' instead of 'init' just to get the pod to STAY ALIVE 
-      # so we can inspect it manually.
+      # Use a dummy command to bypass systemd boot issues for now
       command: ['tail', '-f', '/dev/null']
+      env:
+        - name: KUBEDOCK_ENABLED
+          value: 'false'
+      volumeMounts:
+        - name: cgroups-host
+          path: /sys/fs/cgroup
     attributes:
       container-overrides:
         securityContext:
           privileged: true
           runAsUser: 0
           runAsNonRoot: false
+          seLinuxOptions:
+            type: spc_t 
+  - name: cgroups-host
+    volume: {}
+attributes:
+  pod-overrides:
+    spec:
+      volumes:
+        - name: cgroups-host
+          hostPath:
+            path: /sys/fs/cgroup
+            type: Directory
