@@ -1,25 +1,14 @@
 schemaVersion: 2.2.0
 metadata:
-  name: systemd-rosa-final
+  name: systemd-beachhead
 components:
-  - name: universal-developer-image
+  - name: my-container
     container:
       image: registry.redhat.io/devspaces/udi-rhel9:latest
-      # We use a sleep command so the pod starts. 
-      # We will trigger systemd manually once inside.
+      # We don't even try to boot systemd yet. Just stay alive.
       command: ['tail', '-f', '/dev/null']
-      env:
-        - name: KUBEDOCK_ENABLED
-          value: 'false'
-      volumeMounts:
-        - name: cgroup-fake
-          path: /sys/fs/cgroup
     attributes:
       container-overrides:
         securityContext:
           privileged: true
-          # We'll try running as the default user first to keep ROSA happy
-  - name: cgroup-fake
-    volume: {} # This creates a safe 'emptyDir' instead of a 'hostPath'
-attributes:
-  # NOTICE: We removed the 'pod-overrides' hostPath section entirely!
+          runAsUser: 0
