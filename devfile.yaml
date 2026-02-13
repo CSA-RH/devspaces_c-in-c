@@ -9,22 +9,24 @@ components:
       env:
         - name: KUBEDOCK_ENABLED
           value: "false"
-      # We define the mount point here
       volumeMounts:
         - name: cgroups-host
           path: /sys/fs/cgroup
+    # This is the "Native" way to inject security settings
+    attributes:
+      container-overrides:
+        securityContext:
+          privileged: true
+          runAsUser: 0
+          runAsNonRoot: false
+  
   - name: cgroups-host
-    volume: {} # This satisfies the schema requirement for a volume component
+    volume: {}
+
 attributes:
-  # Global overrides that apply to the entire Pod/Deployment
+  # We ONLY override the volumes, NOT the containers
   pod-overrides:
     spec:
-      containers:
-        - name: universal-developer-image
-          securityContext:
-            privileged: true
-            runAsUser: 0
-            runAsNonRoot: false
       volumes:
         - name: cgroups-host
           hostPath:
