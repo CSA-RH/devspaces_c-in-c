@@ -8,7 +8,7 @@ components:
       command: ['/sbin/init']
       env:
         - name: KUBEDOCK_ENABLED
-          value: "false"
+          value: 'false'
       volumeMounts:
         - name: cgroups-host
           path: /sys/fs/cgroup
@@ -16,17 +16,22 @@ components:
       container-overrides:
         securityContext:
           privileged: true
-          runAsUser: 0      # Only THIS container runs as root
+          runAsUser: 0
           runAsNonRoot: false
-  
+          # Adding these to ensure SELinux doesn't block systemd
+          seLinuxOptions:
+            type: spc_t 
   - name: cgroups-host
     volume: {}
-
 attributes:
   pod-overrides:
     spec:
-      # We removed the 'containers' override from here to stop 
-      # affecting the init-containers like project-clone.
+      # We explicitly set the Pod-level security context to NULL
+      # to prevent it from forcing the 'project-clone' to use the 
+      # high-range UID (1000820000) we saw in your previous logs.
+      securityContext:
+        fsGroup: 0
+        runAsUser: 0
       volumes:
         - name: cgroups-host
           hostPath:
