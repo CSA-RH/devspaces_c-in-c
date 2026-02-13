@@ -1,32 +1,25 @@
 schemaVersion: 2.2.0
 metadata:
-  name: systemd-rootless
+  name: systemd-rosa-final
 components:
   - name: universal-developer-image
     container:
       image: registry.redhat.io/devspaces/udi-rhel9:latest
-      # We DON'T use /sbin/init yet. We use a sleep to get the pod UP.
+      # We use a sleep command so the pod starts. 
+      # We will trigger systemd manually once inside.
       command: ['tail', '-f', '/dev/null']
       env:
         - name: KUBEDOCK_ENABLED
           value: 'false'
       volumeMounts:
-        - name: cgroups-host
+        - name: cgroup-fake
           path: /sys/fs/cgroup
     attributes:
       container-overrides:
         securityContext:
-          # We keep privileged to allow the cgroup mount, 
-          # but we STOP asking for UID 0.
           privileged: true
-          allowPrivilegeEscalation: true
-  - name: cgroups-host
-    volume: {}
+          # We'll try running as the default user first to keep ROSA happy
+  - name: cgroup-fake
+    volume: {} # This creates a safe 'emptyDir' instead of a 'hostPath'
 attributes:
-  pod-overrides:
-    spec:
-      volumes:
-        - name: cgroups-host
-          hostPath:
-            path: /sys/fs/cgroup
-            type: Directory
+  # NOTICE: We removed the 'pod-overrides' hostPath section entirely!
