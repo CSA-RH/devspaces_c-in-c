@@ -18,7 +18,7 @@ components:
           privileged: true
           runAsUser: 0
           runAsNonRoot: false
-          # Adding these to ensure SELinux doesn't block systemd
+          # SPC_T allows systemd to talk to the kernel cgroups
           seLinuxOptions:
             type: spc_t 
   - name: cgroups-host
@@ -26,12 +26,8 @@ components:
 attributes:
   pod-overrides:
     spec:
-      # We explicitly set the Pod-level security context to NULL
-      # to prevent it from forcing the 'project-clone' to use the 
-      # high-range UID (1000820000) we saw in your previous logs.
-      securityContext:
-        fsGroup: 0
-        runAsUser: 0
+      # DO NOT put runAsUser: 0 here. 
+      # Leaving this empty allows sidecars to run as their default non-root users.
       volumes:
         - name: cgroups-host
           hostPath:
